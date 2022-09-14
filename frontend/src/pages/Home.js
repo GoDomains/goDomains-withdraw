@@ -6,34 +6,42 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  IconButton,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-  TableContainer,
-  Box
+  Button,
+  Chip
 } from '@mui/material';
-
+import { useSnackbar } from 'notistack';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import AccordionLayout from '../helpers/AccordionLayout';
-import TokenMintingTable from '../components/admin/TokenMintingTable';
-import BlacklistAdminTable from '../components/admin/BlacklistAdminTable';
-import Contract from 'contracts/ABI.json';
-import Web3 from 'web3';
+import { Box } from '@mui/system';
 import { useAppState } from 'state';
-import { currentNetwork, ethToXdcAddress } from 'helpers/web3';
-import AddressFieldTools from 'components/AddressFieldTools';
-import BurnToken from 'components/admin/BurnToken';
 
 const Home = () => {
+  const [balance, setBalance] = useState('0');
+  const { active, withdrawBalance } = useAppState();
+  const { enqueueSnackbar } = useSnackbar();
+
+  const fetchData = async () => {
+    try {
+      const res = await fetch(
+        'https://xdc.blocksscan.io/api/accounts/xdcefD0d0cC73EE70A714c9E681882c1F342fFe7778'
+        // 'https://apothem.blocksscan.io/api/accounts/xdc1BD72127e921534943e97A6ca32db0bCE490B0c3'
+      );
+      const data = await res.json();
+      console.log('data', data.balanceNumber);
+      setBalance(data.balanceNumber);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [balance]);
+
   return (
     <Page title="Admin Dashboard | Comtech Gold">
       <Container>
-        <Typography variant="h6" sx={{ fontWeight: 'bold', mt: 2 }}>
-          Comtech Gold
+        <Typography variant="h6" sx={{ fontWeight: 'bold', mt: 4, mb: 4 }}>
+          GoDOMAINS Admin Dashboard
         </Typography>
         <Accordion
           defaultExpanded
@@ -57,125 +65,64 @@ const Home = () => {
                 fontWeight: 'bold'
               }}
             >
-              Smart Contracts
+              XDCs Withdraw
             </Typography>
           </AccordionSummary>
-          <AccordionDetails>
-            <TableContainer>
-              <Table size="small" aria-label="a dense table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Contract Name</TableCell>
-                    <TableCell>Contract Address</TableCell>
-                    <TableCell
-                      sx={{
-                        textAlign: 'center'
-                      }}
-                    >
-                      View On Blocks Scan
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: 'bold' }}>Comtech Gold Token</TableCell>
-                    <TableCell>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          flexDirection: 'row',
-                          m: 0,
-                          p: 0,
-                          alignItems: 'center'
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden'
-                          }}
-                        >
-                          {ethToXdcAddress(currentNetwork.tokenContractAddress)}
-                        </Box>
-                        {/* <IconButton
-                          aria-label="subs detail"
-                          onClick={() =>
-                            navigator.clipboard.writeText(
-                              ethToXdcAddress(currentNetwork.tokenContractAddress)
-                            )
-                          }
-                        >
-                          <ContentCopyIcon sx={{ fontSize: '1rem' }} />
-                        </IconButton> */}
-                      </Box>
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        display: 'flex',
-                        justifyContent: 'center'
-                      }}
-                    >
-                      <AddressFieldTools
-                        address={currentNetwork.tokenContractAddress}
-                        showInBlockExplorer
-                        showAddress={false}
-                      />
-                    </TableCell>
-                  </TableRow>
-                  {/* <TableRow>
-                    <TableCell sx={{ fontWeight: "bold" }}>
-                      Escrow & Settlement
-                    </TableCell>
-                    <TableCell>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexDirection: "row",
-                          m: 0,
-                          p: 0,
-                          alignItems: "center",
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                          }}
-                        >
-                          sfg
-                        </Box>
-                        <IconButton
-                          aria-label="subs detail"
-                          onClick={console.log("click")}
-                        >
-                          <ContentCopyIcon sx={{ fontSize: "1rem" }} />
-                        </IconButton>
-                      </Box>
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                      }}
-                    >
-                      AddressFieldTools
-                      <AddressFieldTools
-                        address={currentNetwork.escrowManagerAddress}
-                        showInBlockExplorer
-                        showAddress={false}
-                      />
-                    </TableCell>
-                  </TableRow> */}
-                </TableBody>
-              </Table>
-            </TableContainer>
+          <AccordionDetails
+            sx={{
+              justifyContent: 'center',
+              alignItems: 'center',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+          >
+            <Box
+              sx={{
+                display: 'flex',
+                mb: 2
+              }}
+            >
+              <Typography
+                sx={{
+                  fontSize: '1.125rem',
+                  fontWeight: 'bold',
+                  mt: 1,
+                  mr: 1
+                }}
+              >
+                Balance:
+              </Typography>
+              <Chip
+                label={active ? `${balance} XDCs` : 'Please connect your wallet'}
+                color="success"
+                sx={{
+                  height: '2.6rem',
+                  borderRadius: '1rem',
+                  px: 0.5,
+                  fontSize: '1rem',
+                  fontWeight: 'bold'
+                }}
+              />
+            </Box>
+            <Button
+              variant="contained"
+              onClick={async () => {
+                if (active) {
+                  try {
+                    await withdrawBalance();
+                  } catch (error) {
+                    console.log('error', error.message);
+                    enqueueSnackbar(error, { variant: 'error' });
+                  }
+                } else {
+                  enqueueSnackbar('Please connect your wallet', { variant: 'info' });
+                }
+              }}
+            >
+              Withdraw
+            </Button>
           </AccordionDetails>
         </Accordion>
-        <AccordionLayout defaultExpanded title="Mint Token" content={<TokenMintingTable />} />
-        <AccordionLayout title="Burn Token" content={<BurnToken />} />
-        <AccordionLayout title="Blacklist Admin" content={<BlacklistAdminTable />} />
       </Container>
     </Page>
   );
