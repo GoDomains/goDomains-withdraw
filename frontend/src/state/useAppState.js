@@ -8,16 +8,13 @@ import { SafeAppConnector, useSafeAppConnection } from '@gnosis.pm/safe-apps-web
 import { selectedWalletPersistence } from 'persistence';
 import WALLETS from 'config/wallets';
 import { InjectedConnector, NoEthereumProviderError } from '@yodaplus/injected-connector';
-
 import {
   sendTransaction,
   sendTransactionHashOnly,
   WEB3_STATUS,
   currentNetwork,
   transformProviderFromXinfin,
-  readOnlyWeb3,
-  sendNativeTransaction,
-  getTransactionHash
+  readOnlyWeb3
 } from 'helpers/web3';
 
 require('dotenv').config();
@@ -72,7 +69,8 @@ const useMultisigStatus = () => {
 const AppState = () => {
   const { activate, deactivate, active, account, library: walletWeb3, chainId } = useWeb3React();
   console.log('🚀 ~ file: useAppState.js ~ line 70 ~ AppState ~ account', account);
-
+  const contractAddress = Contract.address;
+  const contractABI = Contract.abi;
   const [status, setStatus] = useState(WEB3_STATUS.UNKNOWN);
   const [balance, setBalance] = useState('0');
 
@@ -161,37 +159,11 @@ const AppState = () => {
   );
 
   // eslint-disable-next-line
-  const mintToken = useCallback(
-    wrapContractCall((addr, amount) =>
-      sendTransactionHashOnly(
-        web3,
-        contract.methods.mint(addr, web3.utils.toWei(amount.toString(), 'ether'))
-      )
-    ),
-    [wrapContractCall, web3, contract]
-  );
-
-  // eslint-disable-next-line
-  const burnToken = useCallback(
-    wrapContractCall((amount) =>
-      sendTransactionHashOnly(
-        web3,
-        contract.methods.burn(web3.utils.toWei(amount.toString(), 'ether'))
-      )
-    ),
-    [wrapContractCall, web3, contract]
-  );
-
-  // eslint-disable-next-line
-  const checkBlackList = useCallback(
-    wrapContractCall((addr) => contract.methods.isBlackListed(addr).call()),
-    [wrapContractCall, web3, contract]
-  );
-
-  // eslint-disable-next-line
-  const updateBlackList = useCallback(
-    wrapContractCall((addr, isBlackList) =>
-      sendTransactionHashOnly(web3, contract.methods.blacklistUpdate(addr, isBlackList))
+  const withdrawBalance = useCallback(
+    wrapContractCall(() =>
+      sendTransactionHashOnly(web3, contract.methods.withdraw()).catch((error) => {
+        console.log('withdraw failed', error.message);
+      })
     ),
     [wrapContractCall, web3, contract]
   );
@@ -262,13 +234,12 @@ const AppState = () => {
     account,
     chainId,
     web3,
-    mintToken,
     balance,
     connectWallet,
     disconnectWallet,
-    checkBlackList,
-    updateBlackList,
-    burnToken
+    withdrawBalance,
+    contractAddress,
+    contractABI
   };
 };
 
