@@ -24,7 +24,7 @@ const MainNavbar = () => {
         }}
       >
         {/* <Toolbar> */}
-        <Box component="img" src={logo} sx={{ height: '2.6rem' }} alt="Comtech Gold" />
+        <Box component="img" src={logo} sx={{ height: '2.6rem' }} alt="GoDOMAINS" />
 
         <Box sx={{ flexGrow: 1.2 }} />
 

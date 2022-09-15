@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Page from '../components/page';
+
 import {
   Container,
   Typography,
@@ -13,11 +14,25 @@ import { useSnackbar } from 'notistack';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Box } from '@mui/system';
 import { useAppState } from 'state';
+import { getErrorMessage } from 'helpers/errors';
 
 const Home = () => {
   const [balance, setBalance] = useState('0');
-  const { active, withdrawBalance } = useAppState();
+  const { active, withdrawBalance, chainId } = useAppState();
   const { enqueueSnackbar } = useSnackbar();
+
+  const throwErrorMessage = async (error) => {
+    const _message = getErrorMessage(error);
+    const newMessage = _message;
+    /*  const res = await getErrorString(_message);
+    if (res[0]) {
+      newMessage = res[0].status_message;
+    } */
+    enqueueSnackbar(newMessage, {
+      variant: 'error'
+    });
+    return newMessage;
+  };
 
   const fetchData = async () => {
     try {
@@ -38,7 +53,7 @@ const Home = () => {
   }, [balance]);
 
   return (
-    <Page title="Admin Dashboard | Comtech Gold">
+    <Page title="Admin Dashboard | GoDOMAINS">
       <Container>
         <Typography variant="h6" sx={{ fontWeight: 'bold', mt: 4, mb: 4 }}>
           GoDOMAINS Admin Dashboard
@@ -108,11 +123,17 @@ const Home = () => {
               variant="contained"
               onClick={async () => {
                 if (active) {
-                  try {
-                    await withdrawBalance();
-                  } catch (error) {
-                    console.log('error', error.message);
-                    enqueueSnackbar(error, { variant: 'error' });
+                  if (chainId === 50) {
+                    try {
+                      await withdrawBalance();
+                    } catch (error) {
+                      console.log('error', error.message);
+                      throwErrorMessage(error);
+                    }
+                  } else {
+                    enqueueSnackbar('Please connect to XDC Mainnet', {
+                      variant: 'info'
+                    });
                   }
                 } else {
                   enqueueSnackbar('Please connect your wallet', { variant: 'info' });

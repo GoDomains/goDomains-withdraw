@@ -160,11 +160,7 @@ const AppState = () => {
 
   // eslint-disable-next-line
   const withdrawBalance = useCallback(
-    wrapContractCall(() =>
-      sendTransactionHashOnly(web3, contract.methods.withdraw()).catch((error) => {
-        console.log('withdraw failed', error.message);
-      })
-    ),
+    wrapContractCall(() => sendTransactionHashOnly(web3, contract.methods.withdraw())),
     [wrapContractCall, web3, contract]
   );
 
