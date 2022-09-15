@@ -1,5 +1,5 @@
 import { AbstractConnector } from '@web3-react/abstract-connector';
-import { getNetworkIdFromProvider as getChainIdFromProvider } from '@comtech-gold/frontend/src/helpers/web3';
+import { getNetworkIdFromProvider as getChainIdFromProvider } from '@godomains-admin/frontend/src/helpers/web3';
 import warning from 'tiny-warning';
 
 function parseSendReturn(sendReturn) {

@@ -1,4 +1,3 @@
-import './App.css';
 import Router from './routes';
 import React from 'react';
 import ThemeConfig from './theme';
